@@ -1,0 +1,47 @@
+﻿@model Department
+
+@{
+    ViewData["Title"] = "Department Details";
+}
+
+<h1>@Model.Name</h1>
+<p>@Model.Logo</p>
+
+<h2>Sub-Departments inside @Model.Name Department</h2>
+@if (Model.SubDepartments != null && Model.SubDepartments.Any())
+{
+    @await Html.PartialAsync("_DepartmentTree", Model)
+}
+else
+{
+    <p>No sub-departments.</p>
+}
+
+<h2>Parent Departments where first department represents at most top department and then below it represents level down to that department.</h2>
+@if (Model.ParentDepartment != null)
+{
+    <ul>
+        @foreach (var parent in GetParentDepartments(Model))
+        {
+            <li>@parent.Name</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No parent departments.</p>
+}
+
+@functions {
+    private List<Department> GetParentDepartments(Department department)
+    {
+        var parents = new List<Department>();
+        while (department.ParentDepartment != null)
+        {
+            department = department.ParentDepartment;
+            parents.Add(department);
+        }
+        parents.Reverse(); // To display from top-most parent to immediate parent
+        return parents;
+    }
+}
